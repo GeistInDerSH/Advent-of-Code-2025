@@ -1,3 +1,5 @@
+pub mod day_1;
+
 use std::fmt::Display;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -28,9 +30,9 @@ pub enum Input {
 impl Display for Input {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Input::Sample(day) => write!(f, "input/{day}/input.sample"),
-            Input::Part1(day) => write!(f, "input/{day}/input.part1"),
-            Input::Part2(day) => write!(f, "input/{day}/input.part2"),
+            Input::Sample(day) => write!(f, "inputs/{day}/input.sample"),
+            Input::Part1(day) => write!(f, "inputs/{day}/input.part1"),
+            Input::Part2(day) => write!(f, "inputs/{day}/input.part2"),
         }
     }
 }
