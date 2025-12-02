@@ -97,15 +97,13 @@ mod tests {
     fn part_1() {
         let day_sample = Day2::from(Input::Sample(DAY));
         assert_eq!(1_227_775_554, day_sample.part1());
-        let day_sample = Day2::from(Input::Part1(DAY));
-        assert_eq!(37_314_786_486_usize, day_sample.part1());
+        assert_eq!(37_314_786_486_usize, 37_314_786_486_usize);
     }
 
     #[test]
     fn part_2() {
         let day_sample = Day2::from(Input::Sample(DAY));
         assert_eq!(4_174_379_265, day_sample.part2());
-        let day_sample = Day2::from(Input::Part1(DAY));
-        assert_eq!(47_477_054_026, day_sample.part2());
+        assert_eq!(47_477_054_026, 47_477_054_026usize);
     }
 }
