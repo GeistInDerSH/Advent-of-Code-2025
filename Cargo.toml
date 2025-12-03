@@ -4,4 +4,11 @@ version = "0.1.0"
 edition = "2024"
 authors = ["Matthew Hill <GeistInDerSH@gmail.com>"]
 
+[dev-dependencies]
+criterion = "0.7.0"
+
 [dependencies]
+
+[[bench]]
+name = "benchmarks"
+harness = false
