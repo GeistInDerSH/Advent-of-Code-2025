@@ -7,26 +7,22 @@ type BatteryBanks = Vec<Battery>;
 
 pub struct Day3(BatteryBanks);
 
-impl Solution<usize, usize> for Day3 {
-    fn part1(&self) -> usize {
+impl Day3 {
+    fn solve(&self, length: usize) -> usize {
         self.0
             .iter()
-            .map(|battery| {
-                let (index, largest) = battery
-                    .iter()
-                    .take(battery.len() - 1) // skip the last element to ensure there is at least one left over
-                    .enumerate()
-                    .rev() // reverse so max_by will return the first element that is smallest
-                    .max_by(|a, b| a.1.cmp(b.1))
-                    .unwrap_or((0, &battery[0]));
-                let next_largest = battery.iter().skip(index + 1).max().unwrap_or(&0);
-                largest * 10 + next_largest
-            })
+            .map(|battery| find_max_joltage(battery, length))
             .sum()
+    }
+}
+
+impl Solution<usize, usize> for Day3 {
+    fn part1(&self) -> usize {
+        self.solve(2)
     }
 
     fn part2(&self) -> usize {
-        self.0.iter().map(|battery| find_max_joltage(battery)).sum()
+        self.solve(12)
     }
 }
 
@@ -51,35 +47,34 @@ pub fn run() {
     day.report(DAY);
 }
 
-/// Find the largest int value that can be constructed from the slice by concatenating
-/// the slice values.
-fn find_max_joltage(slice: &[usize]) -> usize {
-    // start by finding the largest element. This element should allow for 11 elements to
-    // be after it so we can correctly construct the return value.
-    let (index, value) = slice
+fn find_next_largest(slice: &[usize], offset: usize, limit: usize) -> (usize, usize) {
+    let (index, &value) = slice
         .iter()
-        .take(slice.len() - 11) // skip the last element to ensure there is at least one left over
+        .skip(offset)
+        .take(limit)
         .enumerate()
         .rev() // reverse so max_by will return the first element that is smallest
         .max_by(|a, b| a.1.cmp(b.1))
         .unwrap_or((0, &slice[0]));
+    (index, value)
+}
+
+/// Find the largest int value that can be constructed from the slice by concatenating
+/// the slice values.
+fn find_max_joltage(slice: &[usize], length: usize) -> usize {
+    // start by finding the largest element. This element should allow for (length-1) elements to
+    // be after it so we can correctly construct the return value.
+    let (index, value) = find_next_largest(slice, 0, slice.len() - (length - 1));
 
     let mut skip_count = index + 1;
     let mut cell_count = 1;
-    let mut jolts = *value;
-    while cell_count < 12 {
+    let mut jolts = value;
+    while cell_count < length {
         // Find the next set of values where we will look for the max value.
         // This should leave enough values after to ensure that the number of
-        // cells is equal to 12
-        let window = slice.len() - skip_count - (12 - cell_count) + 1;
-        let (index, value) = slice
-            .iter()
-            .skip(skip_count)
-            .take(window)
-            .enumerate()
-            .rev() // reverse so max_by will return the first element that is smallest
-            .max_by(|a, b| a.1.cmp(b.1))
-            .unwrap_or((0, &slice[0]));
+        // cells is equal to the given length
+        let window = slice.len() - skip_count - (length - cell_count) + 1;
+        let (index, value) = find_next_largest(slice, skip_count, window);
 
         skip_count += index + 1;
         cell_count += 1;
@@ -111,11 +106,11 @@ mod tests {
     fn test_max_joltage() {
         assert_eq!(
             987_654_321_111,
-            find_max_joltage(&[9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1])
+            find_max_joltage(&[9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1], 12)
         );
         assert_eq!(
             434_234_234_278,
-            find_max_joltage(&[2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 7, 8])
+            find_max_joltage(&[2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 7, 8], 12)
         );
     }
 }
