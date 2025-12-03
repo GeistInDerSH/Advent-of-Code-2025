@@ -24,7 +24,7 @@ impl Solution<usize, usize> for Day${DAY} {
 impl From<Input> for Day${DAY} {
     fn from(value: Input) -> Self {
         let _iter = read_to_iter(&value);
-        Day2 {}
+        Day${DAY} {}
     }
 }
 
