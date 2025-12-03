@@ -18,7 +18,7 @@ impl Solution<usize, usize> for Day3 {
                     .enumerate()
                     .rev() // reverse so max_by will return the first element that is smallest
                     .max_by(|a, b| a.1.cmp(b.1))
-                    .unwrap_or((battery[0], &0));
+                    .unwrap_or((0, &battery[0]));
                 let next_largest = battery.iter().skip(index + 1).max().unwrap_or(&0);
                 largest * 10 + next_largest
             })
@@ -26,7 +26,7 @@ impl Solution<usize, usize> for Day3 {
     }
 
     fn part2(&self) -> usize {
-        0
+        self.0.iter().map(|battery| find_max_joltage(battery)).sum()
     }
 }
 
@@ -51,6 +51,44 @@ pub fn run() {
     day.report(DAY);
 }
 
+/// Find the largest int value that can be constructed from the slice by concatenating
+/// the slice values.
+fn find_max_joltage(slice: &[usize]) -> usize {
+    // start by finding the largest element. This element should allow for 11 elements to
+    // be after it so we can correctly construct the return value.
+    let (index, value) = slice
+        .iter()
+        .take(slice.len() - 11) // skip the last element to ensure there is at least one left over
+        .enumerate()
+        .rev() // reverse so max_by will return the first element that is smallest
+        .max_by(|a, b| a.1.cmp(b.1))
+        .unwrap_or((0, &slice[0]));
+
+    let mut skip_count = index + 1;
+    let mut cell_count = 1;
+    let mut jolts = *value;
+    while cell_count < 12 {
+        // Find the next set of values where we will look for the max value.
+        // This should leave enough values after to ensure that the number of
+        // cells is equal to 12
+        let window = slice.len() - skip_count - (12 - cell_count) + 1;
+        let (index, value) = slice
+            .iter()
+            .skip(skip_count)
+            .take(window)
+            .enumerate()
+            .rev() // reverse so max_by will return the first element that is smallest
+            .max_by(|a, b| a.1.cmp(b.1))
+            .unwrap_or((0, &slice[0]));
+
+        skip_count += index + 1;
+        cell_count += 1;
+        jolts = jolts * 10 + value;
+    }
+
+    jolts
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -65,7 +103,19 @@ mod tests {
     #[test]
     fn part_2() {
         let day_sample = Day3::from(Input::Sample(DAY));
-        assert_eq!(0, day_sample.part2());
-        assert_eq!(0, 0);
+        assert_eq!(3_121_910_778_619, day_sample.part2());
+        assert_eq!(175_304_218_462_560, 175_304_218_462_560_usize);
+    }
+
+    #[test]
+    fn test_max_joltage() {
+        assert_eq!(
+            987_654_321_111,
+            find_max_joltage(&[9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1])
+        );
+        assert_eq!(
+            434_234_234_278,
+            find_max_joltage(&[2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 7, 8])
+        );
     }
 }
