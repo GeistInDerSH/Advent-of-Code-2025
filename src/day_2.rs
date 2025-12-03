@@ -1,42 +1,31 @@
 use crate::{Input, Solution};
-use std::collections::HashSet;
 
 const DAY: u8 = 2;
 
-type Ranges = Vec<std::ops::RangeInclusive<usize>>;
+type Ranges = Vec<(usize, usize)>;
 
 pub struct Day2(Ranges);
 
-impl Solution<usize, usize> for Day2 {
-    fn part1(&self) -> usize {
+impl Day2 {
+    fn solution(&self, filter_fn: fn(usize) -> bool) -> usize {
         self.0
             .iter()
-            .map(|range| {
-                range
-                    .clone()
-                    .map(|i| (i, i.to_string()))
-                    .filter(|(_, string)| has_repetition_twice(string))
-                    .map(|(value, _)| value)
+            .map(|&(start, end)| {
+                (start..=end)
+                    .filter(|&value| filter_fn(value))
                     .sum::<usize>()
             })
             .sum()
     }
+}
+
+impl Solution<usize, usize> for Day2 {
+    fn part1(&self) -> usize {
+        self.solution(has_repetition_twice)
+    }
 
     fn part2(&self) -> usize {
-        self.0
-            .iter()
-            .map(|range| {
-                range
-                    .clone()
-                    .map(|i| (i, i.to_string()))
-                    .filter(|(_, string)| {
-                        let has_repetition = has_repetition_at_least_twice(string);
-                        has_repetition || has_repetition_twice(string)
-                    })
-                    .map(|(value, _)| value)
-                    .sum::<usize>()
-            })
-            .sum()
+        self.solution(has_repetition_at_least_twice)
     }
 }
 
@@ -47,41 +36,38 @@ impl From<Input> for Day2 {
             .split(',')
             .map(|raw| {
                 let (lhs, rhs) = raw.split_once('-').unwrap();
-                lhs.parse::<usize>().unwrap()..=rhs.parse::<usize>().unwrap()
+                (lhs.parse().unwrap(), rhs.parse().unwrap())
             })
             .collect::<Vec<_>>();
         Day2(ranges)
     }
 }
 
-fn has_repetition_twice(string: &str) -> bool {
-    let is_even_length = string.len().is_multiple_of(2);
+fn has_repetition_twice(value: usize) -> bool {
+    if !(value.checked_ilog10().unwrap_or(0) + 1).is_multiple_of(2) {
+        return false;
+    }
+    let string = value.to_string();
     let (lhs, rhs) = string.split_at(string.len() / 2);
-    is_even_length && lhs == rhs
+    lhs == rhs
 }
 
-fn has_repetition_at_least_twice(string: &str) -> bool {
+fn has_repetition_at_least_twice(value: usize) -> bool {
+    let string = value.to_string();
     let bytes = string.as_bytes();
     // shortcut for all being the same char
     if bytes.iter().all(|&b| b == bytes[0]) {
         return true;
     }
 
-    for window_size in 2..=string.len() / 2 {
-        // Only consider windows that won't leave any remaining characters
-        if !string.len().is_multiple_of(window_size) {
-            continue;
-        }
-
-        let set = bytes
-            .windows(window_size)
-            .step_by(window_size)
-            .collect::<HashSet<_>>();
-        if set.len() == 1 {
-            return true;
-        }
-    }
-    false
+    let length = bytes.len();
+    (2..=length / 2)
+        .filter(|&sub_len| length.is_multiple_of(sub_len))
+        .any(|sub_len| {
+            let mut seq = bytes.chunks(sub_len);
+            let first = seq.next().unwrap();
+            seq.all(|chunk| chunk == first)
+        })
 }
 
 pub fn run() {
