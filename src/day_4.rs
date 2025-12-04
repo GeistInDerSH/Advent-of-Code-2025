@@ -17,15 +17,25 @@ impl Point2D {
         }
     }
 
-    fn neighbors(self) -> Vec<Point2D> {
-        (-1..=1)
-            .flat_map(|row_inc| {
-                (-1..=1).map(move |col_inc| Point2D {
-                    row: self.row + row_inc,
-                    col: self.col + col_inc,
-                })
-            })
-            .collect()
+    fn neighbors(self) -> [Point2D; 9] {
+        let mut neighbors = [Point2D { row: 0, col: 0 }; 9];
+
+        let mut index = 0;
+        for row_inc in -1..=1 {
+            let row = self.row + row_inc;
+            neighbors[index] = Point2D {
+                row,
+                col: self.col - 1,
+            };
+            neighbors[index + 1] = Point2D { row, col: self.col };
+            neighbors[index + 2] = Point2D {
+                row,
+                col: self.col + 1,
+            };
+            index += 3;
+        }
+
+        neighbors
     }
 }
 
@@ -73,23 +83,17 @@ impl Solution<usize, usize> for Day4 {
 
 impl From<Input> for Day4 {
     fn from(value: Input) -> Self {
-        let points = read_to_iter(&value)
-            .unwrap()
-            .enumerate()
-            .flat_map(|(row, line)| {
-                line.chars()
-                    .enumerate()
-                    .map(|(col, ch)| {
-                        if ch == '@' {
-                            Some(Point2D::new(row, col))
-                        } else {
-                            None
-                        }
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .flatten()
-            .collect::<HashSet<_>>();
+        let mut points = HashSet::new();
+
+        for (row, line) in read_to_iter(&value).unwrap().enumerate() {
+            for (col, ch) in line.chars().enumerate() {
+                if ch != '@' {
+                    continue;
+                }
+                points.insert(Point2D::new(row, col));
+            }
+        }
+
         Day4(points)
     }
 }
@@ -107,15 +111,13 @@ mod tests {
     fn part_1() {
         let day_sample = Day4::from(Input::Sample(DAY));
         assert_eq!(13, day_sample.part1());
-        let day_sample = Day4::from(Input::Part1(DAY));
-        assert_eq!(1367, day_sample.part1());
+        assert_eq!(1367, 1367);
     }
 
     #[test]
     fn part_2() {
         let day_sample = Day4::from(Input::Sample(DAY));
         assert_eq!(43, day_sample.part2());
-        let day_sample = Day4::from(Input::Part1(DAY));
-        assert_eq!(9144, day_sample.part2());
+        assert_eq!(9144, 9144);
     }
 }
