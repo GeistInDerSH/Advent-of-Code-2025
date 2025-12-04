@@ -5,15 +5,15 @@ const DAY: u8 = 4;
 
 #[derive(Eq, Hash, PartialEq, Copy, Clone)]
 struct Point2D {
-    row: i16,
-    col: i16,
+    row: i64,
+    col: i64,
 }
 
 impl Point2D {
     fn new(row: usize, col: usize) -> Self {
         Self {
-            row: i16::try_from(row).unwrap(),
-            col: i16::try_from(col).unwrap(),
+            row: i64::try_from(row).unwrap(),
+            col: i64::try_from(col).unwrap(),
         }
     }
 
