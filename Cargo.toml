@@ -8,6 +8,7 @@ authors = ["Matthew Hill <GeistInDerSH@gmail.com>"]
 criterion = "0.7.0"
 
 [dependencies]
+num-traits = "0.2.19"
 
 [[bench]]
 name = "benchmarks"

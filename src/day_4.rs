@@ -1,49 +1,16 @@
+use crate::points::point_2d::Point2D;
 use crate::{read_to_iter, Input, Solution};
 use std::collections::HashSet;
 
 const DAY: u8 = 4;
 
-#[derive(Eq, Hash, PartialEq, Copy, Clone)]
-struct Point2D {
-    row: i64,
-    col: i64,
-}
-
-impl Point2D {
-    fn new(row: usize, col: usize) -> Self {
-        Self {
-            row: i64::try_from(row).unwrap(),
-            col: i64::try_from(col).unwrap(),
-        }
-    }
-
-    fn neighbors(self) -> [Point2D; 9] {
-        let mut neighbors = [Point2D { row: 0, col: 0 }; 9];
-
-        let mut index = 0;
-        for row_inc in -1..=1 {
-            let row = self.row + row_inc;
-            neighbors[index] = Point2D {
-                row,
-                col: self.col - 1,
-            };
-            neighbors[index + 1] = Point2D { row, col: self.col };
-            neighbors[index + 2] = Point2D {
-                row,
-                col: self.col + 1,
-            };
-            index += 3;
-        }
-
-        neighbors
-    }
-}
+type PaperRolls = Point2D<i16>;
 
 #[derive(Clone)]
-pub struct Day4(HashSet<Point2D>);
+pub struct Day4(HashSet<PaperRolls>);
 
 impl Day4 {
-    fn reachable_paper_rolls(&self) -> HashSet<Point2D> {
+    fn reachable_paper_rolls(&self) -> HashSet<PaperRolls> {
         self.0
             .iter()
             .filter(|&point| {
@@ -90,7 +57,7 @@ impl From<Input> for Day4 {
                 if ch != '@' {
                     continue;
                 }
-                points.insert(Point2D::new(row, col));
+                points.insert(PaperRolls::new(row, col));
             }
         }
 
