@@ -4,6 +4,7 @@ extern crate criterion;
 use advent_of_code::day_1::Day1;
 use advent_of_code::day_2::Day2;
 use advent_of_code::day_3::Day3;
+use advent_of_code::day_4::Day4;
 use advent_of_code::{Input, Solution};
 use criterion::{criterion_main, Criterion};
 use std::fmt::Display;
@@ -38,6 +39,7 @@ fn all_days(c: &mut Criterion) {
     helper(c, "day 1", || Box::new(Day1::from(Input::Part1(1))));
     helper(c, "day 2", || Box::new(Day2::from(Input::Part1(2))));
     helper(c, "day 3", || Box::new(Day3::from(Input::Part1(3))));
+    helper(c, "day 4", || Box::new(Day4::from(Input::Part1(4))));
 }
 
 criterion_group!(days, all_days);
