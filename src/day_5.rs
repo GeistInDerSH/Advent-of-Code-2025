@@ -28,16 +28,23 @@ impl Solution<usize, usize> for Day5 {
     }
 
     fn part2(&self) -> usize {
+        // Sort the fresh ids by the start of the range so that we can combine ranges more
+        // easily later on without needing to do multiple passes.
         let sorted_fresh_ids = {
             let mut ids = self.fresh_ids.clone();
             ids.sort_by(|a, b| a.0.cmp(&b.0));
             ids
         };
 
-        let mut ranges: Vec<FreshIngredients> = Vec::new();
+        let mut valid_id_ranges: Vec<FreshIngredients> = Vec::new();
         for fresh_range in &sorted_fresh_ids {
             let mut added = false;
-            for entry in &mut ranges {
+
+            // Check to see if any of the FreshIngredients ranges we've added has
+            // an overlap with the current range. If it does, we'll modify that range
+            // so it includes the current one.
+            // If we don't find it, we'll add it as a new range.
+            for entry in &mut valid_id_ranges {
                 if has_overlap(*fresh_range, *entry) {
                     *entry = intersection(*fresh_range, *entry);
                     added = true;
@@ -45,11 +52,13 @@ impl Solution<usize, usize> for Day5 {
             }
 
             if !added {
-                ranges.push(*fresh_range);
+                valid_id_ranges.push(*fresh_range);
             }
         }
 
-        ranges.iter().map(|&(start, end)| end - start + 1).sum()
+        valid_id_ranges
+            .iter()
+            .fold(0, |acc, (start, end)| acc + (end - start) + 1)
     }
 }
 
@@ -77,15 +86,20 @@ impl From<Input> for Day5 {
     }
 }
 
-fn is_within_range(value: usize, range: &FreshIngredients) -> bool {
+/// Check to see if the given [`Ingredient`] is within the range.
+fn is_within_range(value: Ingredient, range: &FreshIngredients) -> bool {
     range.0 < value && value <= range.1
 }
 
+/// Check if the two [`FreshIngredients`] contain any overlap in the values
+/// within their bounds.
 fn has_overlap(r1: FreshIngredients, r2: FreshIngredients) -> bool {
     r1.0 <= r2.1 && r2.0 <= r1.1
 }
 
-fn intersection(r1: (RangeStart, RangeEnd), r2: (RangeStart, RangeEnd)) -> (RangeStart, RangeEnd) {
+/// Find the intersection of the two [`FreshIngredients`] ranges and return
+/// the resulting range.
+fn intersection(r1: FreshIngredients, r2: FreshIngredients) -> FreshIngredients {
     (r1.0.min(r2.0), r1.1.max(r2.1))
 }
 
