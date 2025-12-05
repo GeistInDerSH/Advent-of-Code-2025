@@ -1,4 +1,4 @@
-use crate::{Input, Solution};
+use crate::{helper, Input, Solution};
 
 const DAY: u8 = 2;
 
@@ -34,10 +34,7 @@ impl From<Input> for Day2 {
         let contents = std::fs::read_to_string(value.to_string()).unwrap();
         let ranges = contents
             .split(',')
-            .map(|raw| {
-                let (lhs, rhs) = raw.split_once('-').unwrap();
-                (lhs.parse().unwrap(), rhs.parse().unwrap())
-            })
+            .map(helper::parsing::line_to_range_tuple::<&str, usize>)
             .collect::<Vec<_>>();
         Day2(ranges)
     }

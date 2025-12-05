@@ -1,4 +1,4 @@
-use crate::{read_to_iter, Input, Solution};
+use crate::{helper, read_to_iter, Input, Solution};
 use std::collections::HashSet;
 
 const DAY: u8 = 5;
@@ -68,10 +68,7 @@ impl From<Input> for Day5 {
         let fresh_ids = iter
             .iter()
             .take_while(|line| !line.is_empty())
-            .map(|line| {
-                let (lhs, rhs) = line.split_once('-').unwrap();
-                (lhs.parse().unwrap(), rhs.parse().unwrap())
-            })
+            .map(helper::parsing::line_to_range_tuple::<&String, usize>)
             .collect::<Vec<_>>();
         let ingredient_ids = iter
             .iter()
