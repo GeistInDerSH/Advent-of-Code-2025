@@ -72,13 +72,13 @@ impl Column {
     /// Read the values in the columns from right-to-left and return them as a vector.
     ///
     /// For example:
-    /// ```
+    /// ```markdown
     /// 123
     ///  45
     ///   6
     /// ```
     /// would return:
-    /// ```
+    /// ```markdown
     /// [356, 24, 1]
     /// ```
     ///
