@@ -4,4 +4,6 @@ fn main() {
     advent_of_code::day_2::run();
     advent_of_code::day_3::run();
     advent_of_code::day_4::run();
+    advent_of_code::day_5::run();
+    advent_of_code::day_6::run();
 }
