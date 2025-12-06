@@ -59,61 +59,79 @@ struct Column {
     operator: Operator,
 }
 
+impl Column {
+    fn reduce_row_wise(&self) -> usize {
+        let reducer = self.operator.to_reduce_fn();
+        self.values
+            .iter()
+            .flat_map(|string| string.trim().parse::<usize>())
+            .reduce(reducer)
+            .unwrap_or(0)
+    }
+
+    /// Read the values in the columns from right-to-left and return them as a vector.
+    ///
+    /// For example:
+    /// ```
+    /// 123
+    ///  45
+    ///   6
+    /// ```
+    /// would return:
+    /// ```
+    /// [356, 24, 1]
+    /// ```
+    ///
+    fn extract_columnar_values(&self) -> Vec<usize> {
+        // Ensure that we get the number with the most digits so we don't
+        // index out of bounds.
+        let longest = self.values.iter().map(String::len).max().unwrap();
+
+        // Parse each of the rows top to bottom, right to left. These get stored into
+        // the vector in reverse order, so we need to handle that before returning.
+        // Example:
+        // 123
+        //  45
+        //   6
+        // Gets pushed as: [1, 24, 356]
+        let mut columnar_values = vec![0; longest];
+        for row in &self.values {
+            for (i, c) in row.as_bytes().iter().enumerate().rev() {
+                if !c.is_ascii_digit() {
+                    continue;
+                }
+
+                columnar_values[i] *= 10;
+                columnar_values[i] += (c - b'0') as usize;
+            }
+        }
+
+        // Ensure the right-to-left order is maintained for correctness when reducing
+        columnar_values.reverse();
+        columnar_values
+    }
+
+    fn reduce_column_wise(&self) -> usize {
+        let reducer = self.operator.to_reduce_fn();
+        self.extract_columnar_values()
+            .iter()
+            .copied()
+            .reduce(reducer)
+            .unwrap_or(0)
+    }
+}
+
 pub struct Day6 {
     columns: Vec<Column>,
 }
 
 impl Solution<usize, usize> for Day6 {
     fn part1(&self) -> usize {
-        self.columns
-            .iter()
-            .map(|Column { values, operator }| {
-                let reducer = operator.to_reduce_fn();
-                values
-                    .iter()
-                    .flat_map(|string| string.trim().parse::<usize>())
-                    .reduce(reducer)
-                    .unwrap_or(0)
-            })
-            .sum()
+        self.columns.iter().map(Column::reduce_row_wise).sum()
     }
 
     fn part2(&self) -> usize {
-        self.columns
-            .iter()
-            .map(|Column { values, operator }| {
-                // Ensure that we get the number with the most digits so we don't
-                // index out of bounds.
-                let longest = values.iter().map(String::len).max().unwrap();
-
-                // Parse each of the rows top to bottom, right to left. These get stored into
-                // the vector in reverse order, so we need to handle that later when reducing.
-                // Example:
-                // 123
-                //  45
-                //   6
-                // Gets pushed as: [1, 24, 356]
-                let mut columnar_values = vec![0; longest];
-                for row in values {
-                    for (i, c) in row.as_bytes().iter().enumerate().rev() {
-                        if !c.is_ascii_digit() {
-                            continue;
-                        }
-
-                        columnar_values[i] *= 10;
-                        columnar_values[i] += (c - b'0') as usize;
-                    }
-                }
-
-                let reducer = operator.to_reduce_fn();
-                columnar_values
-                    .iter()
-                    .rev()
-                    .copied()
-                    .reduce(reducer)
-                    .unwrap_or(0)
-            })
-            .sum()
+        self.columns.iter().map(Column::reduce_column_wise).sum()
     }
 }
 
