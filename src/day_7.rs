@@ -11,8 +11,8 @@ type TachyonSplitters = Point2D<i64>;
 pub struct Day7 {
     start: TachyonSplitters,
     manifolds: HashSet<TachyonSplitters>,
-    width: usize,
-    height: usize,
+    width: i64,
+    height: i64,
 }
 
 impl Solution<usize, usize> for Day7 {
@@ -20,14 +20,12 @@ impl Solution<usize, usize> for Day7 {
         let mut heap = BinaryHeap::new();
         heap.push(self.start);
         let mut visited = HashSet::new();
-        while let Some(point) = heap.pop() {
-            let after = self
-                .manifolds
-                .iter()
-                .filter(|&&p| p.col == point.col && p.row > point.row)
-                .min_by(|a, b| a.row.cmp(&b.row));
+        while let Some(TachyonSplitters { row, col }) = heap.pop() {
+            let after = (row..self.height)
+                .map(|row| TachyonSplitters { row, col })
+                .find(|&next| self.manifolds.contains(&next));
 
-            if let Some(&next) = after
+            if let Some(next) = after
                 && visited.insert(next)
             {
                 heap.push(next + EAST);
@@ -40,10 +38,10 @@ impl Solution<usize, usize> for Day7 {
 
     fn part2(&self) -> usize {
         let mut beams = HashMap::new();
-        beams.insert(usize::try_from(self.start.col).unwrap(), 1);
+        beams.insert(self.start.col, 1);
         for row in 0..self.height {
             for col in 0..self.width {
-                let point = TachyonSplitters::new(row, col);
+                let point = TachyonSplitters { row, col };
                 if !self.manifolds.contains(&point) {
                     continue;
                 }
@@ -63,8 +61,8 @@ impl From<Input> for Day7 {
     fn from(value: Input) -> Self {
         let iter = read_to_iter(&value).unwrap().collect::<Vec<_>>();
 
-        let width = iter[0].len();
-        let height = iter.len();
+        let width = i64::try_from(iter[0].len()).unwrap();
+        let height = i64::try_from(iter.len()).unwrap();
         let mut start = Point2D::default();
         let mut tachyon_manifold = HashSet::new();
         for (row, line) in iter.iter().enumerate() {
