@@ -1,4 +1,6 @@
-#[derive(Eq, Hash, PartialEq, Copy, Clone)]
+use std::ops::{Add, AddAssign};
+
+#[derive(Eq, Hash, PartialEq, Copy, Clone, Debug, Ord, PartialOrd)]
 pub struct Point2D<T>
 where
     T: num_traits::Signed + num_traits::PrimInt,
@@ -30,6 +32,30 @@ where
         }
 
         neighbors
+    }
+}
+
+impl<T> Add for Point2D<T>
+where
+    T: num_traits::Signed + num_traits::NumCast + num_traits::PrimInt + Copy,
+{
+    type Output = Point2D<T>;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::Output {
+            row: self.row + rhs.row,
+            col: self.col + rhs.col,
+        }
+    }
+}
+
+impl<T> AddAssign for Point2D<T>
+where
+    T: num_traits::Signed + num_traits::NumCast + num_traits::PrimInt + Copy,
+{
+    fn add_assign(&mut self, rhs: Self) {
+        self.row = self.row + rhs.row;
+        self.col = self.col + rhs.col;
     }
 }
 
