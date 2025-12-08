@@ -38,13 +38,13 @@ impl<const L1: usize> Day8<L1> {
 
     fn chains(&self) -> Vec<HashSet<JunctionBox>> {
         let mut heap = self.distance_pairs();
-        let mut g: HashMap<JunctionBox, HashSet<JunctionBox>> = HashMap::new();
+        let mut connection_map: HashMap<JunctionBox, HashSet<JunctionBox>> = HashMap::new();
 
         let mut connections = 0;
         while let Some(Reverse((_, (start, end)))) = heap.pop() {
-            if !g.entry(start).or_default().contains(&end) {
-                g.entry(end).or_default().insert(start);
-                g.entry(start).or_default().insert(end);
+            if !connection_map.entry(start).or_default().contains(&end) {
+                connection_map.entry(end).or_default().insert(start);
+                connection_map.entry(start).or_default().insert(end);
                 connections += 1;
             }
 
@@ -53,7 +53,7 @@ impl<const L1: usize> Day8<L1> {
             }
         }
 
-        generate_connections(&g)
+        generate_connections(&connection_map)
     }
 }
 
@@ -67,6 +67,22 @@ impl<const L1: usize> Solution<usize, usize> for Day8<L1> {
     }
 
     fn part2(&self) -> usize {
+        let mut heap = self.distance_pairs();
+        let mut connection_map: HashMap<JunctionBox, HashSet<JunctionBox>> = HashMap::new();
+
+        while let Some(Reverse((_, (start, end)))) = heap.pop() {
+            if !connection_map.entry(start).or_default().contains(&end) {
+                connection_map.entry(end).or_default().insert(start);
+                connection_map.entry(start).or_default().insert(end);
+            }
+
+            if let Some(connections) = generate_connections(&connection_map).first()
+                && connections.len() == self.boxes.len()
+            {
+                return usize::try_from(start.x * end.x).unwrap_or(0);
+            }
+        }
+
         0
     }
 }
@@ -91,7 +107,7 @@ impl<const L1: usize> From<Input> for Day8<L1> {
 fn generate_connections(
     chains: &HashMap<JunctionBox, HashSet<JunctionBox>>,
 ) -> Vec<HashSet<JunctionBox>> {
-    let mut queue = chains.keys().copied().collect::<VecDeque<_>>();
+    let mut queue = chains.keys().collect::<VecDeque<_>>();
     let mut seen = HashSet::new();
     let mut light_strings = Vec::new();
 
@@ -103,15 +119,17 @@ fn generate_connections(
             if !seen.insert(junction_box) {
                 continue;
             }
-            chain.insert(junction_box);
+            chain.insert(*junction_box);
 
             if let Some(neighbors) = chains.get(&junction_box) {
-                for &neighbor in neighbors {
+                for neighbor in neighbors {
                     chain_queue.push_back(neighbor);
                 }
             }
         }
-        light_strings.push(chain);
+        if !chain.is_empty() {
+            light_strings.push(chain);
+        }
     }
     light_strings.sort_by_key(HashSet::len);
     light_strings.reverse();
@@ -137,7 +155,8 @@ mod tests {
     #[test]
     fn part_2() {
         let day_sample = Day8::<10>::from(Input::Sample(DAY));
-        assert_eq!(0, day_sample.part2());
-        assert_eq!(0, 0);
+        assert_eq!(25272, day_sample.part2());
+        let day_sample = Day8::<1000>::from(Input::Part1(DAY));
+        assert_eq!(724_454_082, day_sample.part2());
     }
 }
