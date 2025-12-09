@@ -33,6 +33,16 @@ where
 
         neighbors
     }
+
+    pub fn distance(&self, point: Self) -> usize {
+        let x = T::to_isize(&(point.row - self.row)).unwrap();
+        let y = T::to_isize(&(point.col - self.col)).unwrap();
+
+        // isize * isize will always be positive
+        #[allow(clippy::cast_sign_loss)]
+        let dist = (x * x) as usize + (y * y) as usize;
+        dist.isqrt()
+    }
 }
 
 impl<T> Add for Point2D<T>
