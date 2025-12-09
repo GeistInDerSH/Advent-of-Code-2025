@@ -34,6 +34,7 @@ where
         neighbors
     }
 
+    #[allow(unused)]
     pub fn distance(&self, point: Self) -> usize {
         let x = T::to_isize(&(point.row - self.row)).unwrap();
         let y = T::to_isize(&(point.col - self.col)).unwrap();
