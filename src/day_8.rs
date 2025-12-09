@@ -100,14 +100,7 @@ impl<const L1: usize> From<Input> for Day8<L1> {
     fn from(value: Input) -> Self {
         let boxes = read_to_iter(&value)
             .unwrap()
-            .map(|line| {
-                let mut parts = line.split(',').map(|n| n.parse::<usize>().unwrap());
-                JunctionBox::new(
-                    parts.next().unwrap(),
-                    parts.next().unwrap(),
-                    parts.next().unwrap(),
-                )
-            })
+            .flat_map(JunctionBox::try_from)
             .collect::<Vec<_>>();
         Day8::<L1> { boxes }
     }

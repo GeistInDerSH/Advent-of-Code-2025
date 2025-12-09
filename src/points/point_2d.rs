@@ -111,3 +111,65 @@ impl Point2D<i64> {
         }
     }
 }
+
+fn try_from_internal<S, N>(value: S) -> Result<Point2D<N>, &'static str>
+where
+    S: AsRef<str>,
+    N: num_traits::Signed + num_traits::PrimInt + std::str::FromStr,
+{
+    let (lhs, rhs) = value
+        .as_ref()
+        .split_once(',')
+        .ok_or("Input did not contain ','")?;
+    let row = lhs.parse::<N>().map_err(|_| "Could not parse Lhs as i16")?;
+    let col = rhs.parse::<N>().map_err(|_| "Could not parse Rhs as i16")?;
+    Ok(Point2D { row, col })
+}
+
+impl TryFrom<&str> for Point2D<i16> {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<String> for Point2D<i16> {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<&str> for Point2D<i32> {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<String> for Point2D<i32> {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<&str> for Point2D<i64> {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<String> for Point2D<i64> {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}

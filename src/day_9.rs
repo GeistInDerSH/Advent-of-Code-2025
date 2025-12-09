@@ -102,10 +102,7 @@ impl From<Input> for Day9 {
     fn from(value: Input) -> Self {
         let lights = read_to_iter(&value)
             .unwrap()
-            .map(|l| {
-                let (lhs, rhs) = l.split_once(',').unwrap();
-                Light::new(lhs.parse().unwrap(), rhs.parse().unwrap())
-            })
+            .flat_map(Light::try_from)
             .collect::<Vec<Light>>();
         Day9(lights)
     }

@@ -120,3 +120,75 @@ impl Point3D<i64> {
         }
     }
 }
+
+fn try_from_internal<S, N>(value: S) -> Result<Point3D<N>, &'static str>
+where
+    S: AsRef<str>,
+    N: num_traits::Signed + num_traits::PrimInt + std::str::FromStr,
+{
+    let mut parts = value.as_ref().split(',');
+    let x = parts
+        .next()
+        .ok_or("Missing x")?
+        .parse::<N>()
+        .map_err(|_| "Could not parse x as number")?;
+    let y = parts
+        .next()
+        .ok_or("Missing y")?
+        .parse::<N>()
+        .map_err(|_| "Could not parse y as number")?;
+    let z = parts
+        .next()
+        .ok_or("Missing z")?
+        .parse::<N>()
+        .map_err(|_| "Could not parse z as number")?;
+    Ok(Point3D { x, y, z })
+}
+
+impl TryFrom<&str> for Point3D<i16> {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<String> for Point3D<i16> {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<&str> for Point3D<i32> {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<String> for Point3D<i32> {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<&str> for Point3D<i64> {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
+
+impl TryFrom<String> for Point3D<i64> {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        try_from_internal(value)
+    }
+}
