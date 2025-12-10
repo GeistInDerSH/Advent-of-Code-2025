@@ -15,9 +15,26 @@ struct Machine {
 
 impl Machine {
     fn buttons_to_mask(&self) -> impl Iterator<Item = BitMask> {
+        // 1,3 -> 0b1010 -> 10
+        // This way we can XOR with the expected state
         self.button_presses
             .iter()
             .map(|press| press.iter().fold(0, |acc, &x| acc | (1 << x)))
+    }
+
+    fn configure_indicator_lights(&self) -> usize {
+        self.buttons_to_mask()
+            .powerset()
+            .filter_map(|combos| {
+                let value = combos.iter().fold(0, |acc, combo| acc ^ combo);
+                if value == self.expected_state {
+                    Some(combos.len())
+                } else {
+                    None
+                }
+            })
+            .min_by(Ord::cmp)
+            .unwrap_or(0)
     }
 
     fn find_minimum_button_presses(&self) -> usize {
@@ -85,9 +102,6 @@ impl From<String> for Machine {
             value
         };
         // (3) (1,3) (2) (2,3) (0,2) (0,1)
-        // Drop the '(' and ')' for each, then convert to a u16 with the bits set. e.g.
-        // 1,3 -> 0b1010 -> 10
-        // This way we can XOR with the expected state
         let button_presses = parts[1..parts.len() - 1]
             .iter()
             .map(|tuple| {
@@ -117,22 +131,7 @@ pub struct Day10(Vec<Machine>);
 
 impl Solution<usize, usize> for Day10 {
     fn part1(&self) -> usize {
-        self.0
-            .iter()
-            .map(|machine| {
-                machine
-                    .buttons_to_mask()
-                    .powerset()
-                    .map(|combos| {
-                        let value = combos.iter().fold(0, |acc, combo| acc ^ combo);
-                        (value, combos.len())
-                    })
-                    .filter(|(value, _)| *value == machine.expected_state)
-                    .min_by(|(_, a), (_, b)| a.cmp(b))
-                    .unwrap_or((0, usize::MAX))
-                    .1
-            })
-            .sum()
+        self.0.iter().map(Machine::configure_indicator_lights).sum()
     }
 
     fn part2(&self) -> usize {
