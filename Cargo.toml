@@ -10,6 +10,7 @@ criterion = "0.7.0"
 [dependencies]
 num-traits = "0.2.19"
 itertools = "0.14.0"
+z3 = { version = "0.19.5", features = ["gh-release"] }
 
 [[bench]]
 name = "benchmarks"

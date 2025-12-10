@@ -9,8 +9,65 @@ type BitMask = u16;
 #[derive(Clone, Debug)]
 struct Machine {
     expected_state: BitMask,
-    button_presses: Vec<BitMask>,
+    button_presses: Vec<Vec<u16>>,
     joltage: Vec<u16>,
+}
+
+impl Machine {
+    fn buttons_to_mask(&self) -> impl Iterator<Item = BitMask> {
+        self.button_presses
+            .iter()
+            .map(|press| press.iter().fold(0, |acc, &x| acc | (1 << x)))
+    }
+
+    fn find_minimum_button_presses(&self) -> usize {
+        let optimizer = z3::Optimize::new();
+        let result = z3::ast::Int::fresh_const("result");
+
+        // Create inputs for each of the button presses
+        let presses = (0..self.button_presses.len())
+            .map(|i| z3::ast::Int::fresh_const(&format!("press_{i}")))
+            .collect::<Vec<_>>();
+
+        // Ensure we can't press a button a negative number of times
+        for press in &presses {
+            optimizer.assert(&press.ge(0));
+        }
+
+        for (i, &joltage) in self.joltage.iter().enumerate() {
+            let mut terms = Vec::new();
+
+            for (j, press) in self.button_presses.iter().enumerate() {
+                if press.contains(&u16::try_from(i).unwrap()) {
+                    terms.push(presses[j].clone());
+                }
+            }
+
+            let sum = z3::ast::Int::add(&terms);
+            let z3_jolatage = z3::ast::Int::from_u64(u64::from(joltage));
+            optimizer.assert(&sum.eq(z3_jolatage));
+        }
+
+        // Get the minimal result, that is the sum of button presses
+        optimizer.assert(&result.eq(z3::ast::Int::add(&presses)));
+        optimizer.minimize(&result);
+
+        // Check the result of the z3 formula, and return 0 if there are any failures
+        match optimizer.check(&[]) {
+            z3::SatResult::Sat => match optimizer.get_model() {
+                None => 0,
+                Some(model) => {
+                    let answer = model
+                        .eval(&result, true)
+                        .clone()
+                        .and_then(|r| z3::ast::Int::as_u64(&r))
+                        .unwrap_or(0);
+                    usize::try_from(answer).unwrap_or(0)
+                }
+            },
+            z3::SatResult::Unsat | z3::SatResult::Unknown => 0,
+        }
+    }
 }
 
 impl From<String> for Machine {
@@ -34,14 +91,12 @@ impl From<String> for Machine {
         let button_presses = parts[1..parts.len() - 1]
             .iter()
             .map(|tuple| {
-                let digits = tuple[1..tuple.len() - 1].split(',').flat_map(u16::from_str);
-                let mut mask = 0;
-                for digit in digits {
-                    mask |= 1 << digit;
-                }
-                mask
+                tuple[1..tuple.len() - 1]
+                    .split(',')
+                    .flat_map(u16::from_str)
+                    .collect::<Vec<_>>()
             })
-            .collect::<Vec<u16>>();
+            .collect::<Vec<_>>();
         // {3,5,4,7}
         let joltage = {
             let joltage_str = parts.last().unwrap();
@@ -66,11 +121,10 @@ impl Solution<usize, usize> for Day10 {
             .iter()
             .map(|machine| {
                 machine
-                    .button_presses
-                    .iter()
+                    .buttons_to_mask()
                     .powerset()
                     .map(|combos| {
-                        let value = combos.iter().fold(0, |acc, combo| acc ^ **combo);
+                        let value = combos.iter().fold(0, |acc, combo| acc ^ combo);
                         (value, combos.len())
                     })
                     .filter(|(value, _)| *value == machine.expected_state)
@@ -82,7 +136,10 @@ impl Solution<usize, usize> for Day10 {
     }
 
     fn part2(&self) -> usize {
-        0
+        self.0
+            .iter()
+            .map(Machine::find_minimum_button_presses)
+            .sum()
     }
 }
 
@@ -106,13 +163,13 @@ mod tests {
     fn part_1() {
         let day_sample = Day10::from(Input::Sample(DAY));
         assert_eq!(7, day_sample.part1());
-        let day_sample = Day10::from(Input::Part1(DAY));
-        assert_eq!(409, day_sample.part1());
+        assert_eq!(409, 409);
     }
 
     #[test]
     fn part_2() {
         let day_sample = Day10::from(Input::Sample(DAY));
-        assert_eq!(0, day_sample.part2());
+        assert_eq!(33, day_sample.part2());
+        assert_eq!(15489, 15489);
     }
 }
