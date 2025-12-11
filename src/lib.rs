@@ -35,6 +35,7 @@ type Day = u8;
 
 pub enum Input {
     Sample(Day),
+    Sample2(Day),
     Part1(Day),
     Part2(Day),
 }
@@ -43,6 +44,7 @@ impl Display for Input {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Input::Sample(day) => write!(f, "inputs/{day}/input.sample"),
+            Input::Sample2(day) => write!(f, "inputs/{day}/input.sample2"),
             Input::Part1(day) => write!(f, "inputs/{day}/input.part1"),
             Input::Part2(day) => write!(f, "inputs/{day}/input.part2"),
         }
