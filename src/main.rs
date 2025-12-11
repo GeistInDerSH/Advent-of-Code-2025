@@ -9,4 +9,6 @@ fn main() {
     advent_of_code::day_7::run();
     advent_of_code::day_8::run();
     advent_of_code::day_9::run();
+    advent_of_code::day_10::run();
+    advent_of_code::day_11::run();
 }

@@ -3,6 +3,7 @@ extern crate criterion;
 
 use advent_of_code::day_1::Day1;
 use advent_of_code::day_10::Day10;
+use advent_of_code::day_11::Day11;
 use advent_of_code::day_2::Day2;
 use advent_of_code::day_3::Day3;
 use advent_of_code::day_4::Day4;
@@ -52,6 +53,7 @@ fn all_days(c: &mut Criterion) {
     helper(c, "day 8", || Box::new(Day8::<1000>::from(Input::Part1(8))));
     helper(c, "day 9", || Box::new(Day9::from(Input::Part1(9))));
     helper(c, "day 10", || Box::new(Day10::from(Input::Part1(10))));
+    helper(c, "day 11", || Box::new(Day11::from(Input::Part1(11))));
 }
 
 criterion_group!(days, all_days);
