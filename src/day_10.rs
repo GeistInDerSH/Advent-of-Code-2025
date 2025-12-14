@@ -150,7 +150,7 @@ impl From<Input> for Day10 {
 }
 
 pub fn run() {
-    let day = Day10::from(Input::Sample(DAY));
+    let day = Day10::from(Input::Part1(DAY));
     day.report(DAY);
 }
 

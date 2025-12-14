@@ -68,7 +68,7 @@ fn has_repetition_at_least_twice(value: usize) -> bool {
 }
 
 pub fn run() {
-    let day = Day2::from(Input::Sample(DAY));
+    let day = Day2::from(Input::Part1(DAY));
     day.report(DAY);
 }
 

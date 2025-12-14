@@ -128,7 +128,7 @@ fn parse_column_wise_and_reduce(lines: &[&str], reduce_fn: ReduceFn) -> ReducedC
 }
 
 pub fn run() {
-    let day = Day6::from(Input::Sample(DAY));
+    let day = Day6::from(Input::Part1(DAY));
     day.report(DAY);
 }
 

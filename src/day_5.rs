@@ -101,7 +101,7 @@ fn intersection(r1: FreshIngredients, r2: FreshIngredients) -> FreshIngredients 
 }
 
 pub fn run() {
-    let day = Day5::from(Input::Sample(DAY));
+    let day = Day5::from(Input::Part1(DAY));
     day.report(DAY);
 }
 

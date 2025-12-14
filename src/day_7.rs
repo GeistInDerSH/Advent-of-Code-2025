@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn part_1() {
-        let day_sample = Day7::from(Input::Sample(DAY));
+        let day_sample = Day7::from(Input::Part1(DAY));
         assert_eq!(21, day_sample.part1());
         assert_eq!(1640, 1640);
     }

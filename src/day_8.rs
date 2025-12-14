@@ -144,7 +144,7 @@ fn generate_connections(
 }
 
 pub fn run() {
-    let day = Day8::<0>::from(Input::Sample(DAY));
+    let day = Day8::<1000>::from(Input::Part1(DAY));
     day.report(DAY);
 }
 
