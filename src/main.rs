@@ -11,4 +11,5 @@ fn main() {
     advent_of_code::day_9::run();
     advent_of_code::day_10::run();
     advent_of_code::day_11::run();
+    advent_of_code::day_12::run();
 }
