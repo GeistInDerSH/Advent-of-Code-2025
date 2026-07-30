@@ -1,5 +1,5 @@
 use crate::points::point_2d::Point2D;
-use crate::{read_to_iter, Input, Solution};
+use crate::{Input, Solution, read_to_iter};
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
 const DAY: u8 = 7;
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn part_1() {
-        let day_sample = Day7::from(Input::Part1(DAY));
+        let day_sample = Day7::from(Input::Sample(DAY));
         assert_eq!(21, day_sample.part1());
         assert_eq!(1640, 1640);
     }
